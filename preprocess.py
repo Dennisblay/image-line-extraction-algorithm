@@ -28,7 +28,7 @@ class PreProcess:
         return cv2.threshold(image, 12, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
 
     def adaptiveThreshold(self, image):
-        return cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY, 119 , 1)
+        return cv2.adaptiveThreshold(image, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 119, 1)
 
     # dilation
     def dilate(self, image, iterations=1):
