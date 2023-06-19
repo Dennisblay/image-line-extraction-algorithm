@@ -7,6 +7,9 @@ class OCR:
     def __init__(self, imagefile_or_array, tesseract_cmd_path=r'/usr/bin/tesseract'):
         self.tesseract_cmd_path = tesseract_cmd_path
         self.image = imagefile_or_array
+        self.lines_container = []
+        self.bounding_boxes_container = []
+        self.character_container = []
 
     def set_tesseract_cmd_path(self, path=None):
         if path is not None:
@@ -37,7 +40,7 @@ class OCR:
         return pytesseract.image_to_data(self.image)
 
     def write_to_csv(self, filepath):
-        text_lines = [line for line in self.extract_text_to_string().split('\n') if line and not line.isspace()]
+        text_lines = self.get_lines_container
         with open(file=filepath, mode="a") as f:
             for line in text_lines:
                 f.write(f"{line}\n")
@@ -48,7 +51,7 @@ class OCR:
         for b in bounding_boxes_container:
             cv2.rectangle(image, (int(b[0]), h - int(b[1])), (int(b[2]), h - int(b[3])), (0, 255, 0), 2)
 
-    def extract_lines(self):
+    def extract_lines(self):  # Returns bounding box of lines
         lines_first_bound = None  # To temporarily store the bounding box of the first character on a line
         lines_last_bound = None  # To temporarily store the bounding box of the first character on a line
         count = 0  # To keep track of which character we're on
@@ -74,22 +77,25 @@ class OCR:
 
         # except IndexError:
         #     pass
-        print(count)
+        # print(count)
         return lines_bounding_box
 
     @property
-    def get_characters(self):
+    def get_characters_in_container(self):
         characters = [extract.split()[:-1][0] for extract in self.get_bounding_box_string().split("\n") if
                       (extract and not extract.isspace() and extract.split()[:-1][0] != "~")]
+        self.character_container.append(characters)
         return characters
 
     @property
     def get_bounding_box_container(self):
         bounding_boxes = [extract.split()[1:-1] for extract in self.get_bounding_box_string().split("\n") if
                           extract and not extract.isspace() and extract.split()[:-1][0] != "~"]
+        self.bounding_boxes_container.append(bounding_boxes)
         return bounding_boxes
 
     @property
     def get_lines_container(self):
         lines = [line for line in self.extract_text_to_string().split("\n") if (line and not line.isspace())]
+        self.lines_container.append(lines)
         return lines
