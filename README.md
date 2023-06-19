@@ -1,5 +1,5 @@
 # image-line-extraction-algorithm
-This algorithm extracts texts on the same row or line per image after subsequent pre-processing
+This algorithm extracts texts on the same row or line per image after subsequent selective pre-processing
 
 # Tools
 
