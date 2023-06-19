@@ -1,5 +1,6 @@
 import cv2
 import pytesseract
+import csv
 
 
 class OCR:
@@ -9,6 +10,8 @@ class OCR:
         self.image = imagefile_or_array
         self.lines_container = []
         self.bounding_boxes_container = []
+        self.bounding_boxes_lines_container = []
+
         self.character_container = []
 
     def set_tesseract_cmd_path(self, path=None):
@@ -35,8 +38,9 @@ class OCR:
             b = b.split(' ')
             cv2.rectangle(image, (int(b[1]), h - int(b[2])), (int(b[3]), h - int(b[4])), (0, 255, 0), 2)
 
-    def draw_bounding_box_for_lines(self, bounding_boxes_container):
-        image = self.image
+    def draw_bounding_box_for_lines(self, bounding_boxes_container, image=None,):
+        if image is None:
+            image = self.image
         h, w, c = image.shape
         for b in bounding_boxes_container:
             cv2.rectangle(image, (int(b[0]), h - int(b[1])), (int(b[2]), h - int(b[3])), (0, 255, 0), 2)
@@ -46,16 +50,18 @@ class OCR:
         return pytesseract.image_to_data(self.image)
 
     def write_to_csv(self, filepath):
-        text_lines = self.get_lines_container
+        print(self.bounding_boxes_lines_container)
+        print(self.lines_container)
         with open(file=filepath, mode="a") as f:
-            for line in text_lines:
-                f.write(f"{line}\n")
+            for line, bound in zip(self.lines_container, self.bounding_boxes_lines_container):
+                for _line, _bound in zip(line, bound):
+                    f.write(f"{_line}, {_bound}\n")
 
     def extract_lines(self):  # Returns bounding box of lines
         lines_first_bound = None  # To temporarily store the bounding box of the first character on a line
         lines_last_bound = None  # To temporarily store the bounding box of the first character on a line
         count = 0  # To keep track of which character we're on
-
+        # h, w, c = self.image.shape
         lines_bounding_box = []  # To store bounding box of each line
         bounding_box_container = self.get_bounding_box_container
         lines_container = self.get_lines_container
@@ -77,6 +83,7 @@ class OCR:
 
         except IndexError:
             pass
+        self.bounding_boxes_lines_container.append(lines_bounding_box)
         return lines_bounding_box
 
     @property

@@ -1,7 +1,7 @@
 # image-line-extraction-algorithm
 This algorithm extracts texts on the same row or line per image after subsequent selective pre-processing
 
-# Tools
+## Tools
 
 - Tesseract
 - Pytesseract
@@ -13,7 +13,7 @@ This algorithm extracts texts on the same row or line per image after subsequent
 
 This agorithm extracts text on the same row or line per image.
 
-# Files
+### Files
 - main.py: The main file
 - ocr.py: The class interface for the tesseract technology
 - preprocess.py: The class interface for OpenCV
