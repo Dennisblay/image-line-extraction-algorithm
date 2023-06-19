@@ -1,6 +1,5 @@
 import cv2
 import pytesseract
-import csv
 
 
 class OCR:
@@ -38,11 +37,12 @@ class OCR:
             b = b.split(' ')
             cv2.rectangle(image, (int(b[1]), h - int(b[2])), (int(b[3]), h - int(b[4])), (0, 255, 0), 2)
 
-    def draw_bounding_box_for_lines(self, bounding_boxes_container, image=None,):
+    def draw_bounding_box_for_lines(self, bounding_boxes_container, image=None, ):
         if image is None:
             image = self.image
         h, w, c = image.shape
         for b in bounding_boxes_container:
+            b = b.split(",")
             cv2.rectangle(image, (int(b[0]), h - int(b[1])), (int(b[2]), h - int(b[3])), (0, 255, 0), 2)
 
     # Get verbose data including boxes, confidences, line and page numbers
@@ -50,9 +50,11 @@ class OCR:
         return pytesseract.image_to_data(self.image)
 
     def write_to_csv(self, filepath):
-        print(self.bounding_boxes_lines_container)
-        print(self.lines_container)
+        # print(self.bounding_boxes_lines_container)
+        # print(self.lines_container)
+
         with open(file=filepath, mode="a") as f:
+            f.write("TEXT, BOUNDING BOX\n")
             for line, bound in zip(self.lines_container, self.bounding_boxes_lines_container):
                 for _line, _bound in zip(line, bound):
                     f.write(f"{_line}, {_bound}\n")
@@ -76,7 +78,7 @@ class OCR:
                     if line_length == char_index + 1:
                         lines_last_bound = bounding_box_container[count]
                         lines_bounding_box.append(
-                            (*lines_first_bound[:2], *lines_last_bound[2:], f"line-{line_index}"))
+                            f"{lines_first_bound[0]},{lines_first_bound[1]},{lines_last_bound[2]},{lines_last_bound[3]},line-{line_index}")
                     count += 1
 
                 lines_first_bound = None
