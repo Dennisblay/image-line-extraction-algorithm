@@ -1,3 +1,5 @@
+import csv
+
 import cv2
 import pytesseract
 
@@ -10,7 +12,6 @@ class OCR:
         self.lines_container = []
         self.bounding_boxes_container = []
         self.bounding_boxes_lines_container = []
-
         self.character_container = []
 
     def set_tesseract_cmd_path(self, path=None):
@@ -37,13 +38,13 @@ class OCR:
             b = b.split(' ')
             cv2.rectangle(image, (int(b[1]), h - int(b[2])), (int(b[3]), h - int(b[4])), (0, 255, 0), 2)
 
-    def draw_bounding_box_for_lines(self, bounding_boxes_container, image=None, ):
+    def draw_bounding_box_for_lines(self, bounding_boxes_container, image=None):
         if image is None:
             image = self.image
         h, w, c = image.shape
         for b in bounding_boxes_container:
             b = b.split(",")
-            cv2.rectangle(image, (int(b[0]), h - int(b[1])), (int(b[2]), h - int(b[3])), (0, 255, 0), 2)
+            cv2.rectangle(image, (int(b[0]), int(b[1])), (int(b[2]), int(b[3])), (0, 255, 0), 2)
 
     # Get verbose data including boxes, confidences, line and page numbers
     def get_image_data(self):
@@ -55,15 +56,19 @@ class OCR:
 
         with open(file=filepath, mode="a") as f:
             f.write("TEXT, BOUNDING BOX\n")
+            csv_writer = csv.writer(f)
             for line, bound in zip(self.lines_container, self.bounding_boxes_lines_container):
                 for _line, _bound in zip(line, bound):
-                    f.write(f"{_line}, {_bound}\n")
+                    csv_writer.writerow(f"{_line}, {_bound}\n")
 
     def extract_lines(self):  # Returns bounding box of lines
         lines_first_bound = None  # To temporarily store the bounding box of the first character on a line
         lines_last_bound = None  # To temporarily store the bounding box of the first character on a line
         count = 0  # To keep track of which character we're on
-        # h, w, c = self.image.shape
+        try:
+            h, w, c = self.image.shape
+        except ValueError:
+            h, w = self.image.shape
         lines_bounding_box = []  # To store bounding box of each line
         bounding_box_container = self.get_bounding_box_container
         lines_container = self.get_lines_container
@@ -78,7 +83,7 @@ class OCR:
                     if line_length == char_index + 1:
                         lines_last_bound = bounding_box_container[count]
                         lines_bounding_box.append(
-                            f"{lines_first_bound[0]},{lines_first_bound[1]},{lines_last_bound[2]},{lines_last_bound[3]},line-{line_index}")
+                            f"{int(lines_first_bound[0])},{h - int(lines_first_bound[1])},{int(lines_last_bound[2])},{h - int(lines_last_bound[3])},line-{line_index}")
                     count += 1
 
                 lines_first_bound = None

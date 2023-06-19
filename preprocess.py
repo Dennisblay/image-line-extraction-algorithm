@@ -75,7 +75,9 @@ class PreProcess:
 
     def show_frame(self, image):
         cv2.imshow(r"frame", image)
-        self.waitKey()
+        if self.waitKey() & 0xff == ord('q'):
+            cv2.destroyAllWindows()
+
 
     def waitKey(self, delay=0):
-        cv2.waitKey(delay)
+        return cv2.waitKey(delay)
