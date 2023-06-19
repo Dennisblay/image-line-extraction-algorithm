@@ -42,13 +42,11 @@ class OCR:
             for line in text_lines:
                 f.write(f"{line}\n")
 
-    def draw_bounding_box_for_lines(self):
+    def draw_bounding_box_for_lines(self, bounding_boxes_container):
         image = self.image
         h, w, c = image.shape
-        boxes = pytesseract.image_to_boxes(image)
-        for b in boxes.splitlines():
-            b = b.split(' ')
-            cv2.rectangle(image, (int(b[1]), h - int(b[2])), (int(b[3]), h - int(b[4])), (0, 255, 0), 2)
+        for b in bounding_boxes_container:
+            cv2.rectangle(image, (int(b[0]), h - int(b[1])), (int(b[2]), h - int(b[3])), (0, 255, 0), 2)
 
     def extract_lines(self):
         lines_first_bound = None  # To temporarily store the bounding box of the first character on a line
