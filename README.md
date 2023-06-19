@@ -15,6 +15,6 @@ This agorithm extracts text on the same row or line per image.
 
 ### Files
 - main.py: The main file
-- ocr.py: The class interface for the tesseract technology
+- image_line_reader.py: The class interface for the tesseract technology
 - preprocess.py: The class interface for OpenCV
 
