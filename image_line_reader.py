@@ -7,6 +7,14 @@ class LineReader:
     def __init__(self, imagefile_or_array, tesseract_cmd_path=r'/usr/bin/tesseract'):
         self.tesseract_cmd_path = tesseract_cmd_path
         self.image = imagefile_or_array
+        try:
+            rotated = self.rotate_image()
+            if rotated is not None:
+                self.image = rotated
+        except pytesseract.TesseractError:
+            print("Invalid Resolution")
+            self.image = imagefile_or_array
+
         self.lines_container = []
         self.bounding_boxes_lines_container = []
         self.character_container = []
@@ -17,8 +25,40 @@ class LineReader:
             return
         pytesseract.pytesseract.tesseract_cmd = self.tesseract_cmd_path
 
+    def rotate_image(self):
+        angle_of_rotation = self.detect_text_rotation()
+        if angle_of_rotation < 0:
+            return None
+
+            # Get the image dimensions
+        height, width = self.image.shape[:2]
+
+        # Calculate the rotation matrix
+        rotation_matrix = cv2.getRotationMatrix2D((width / 2, height / 2), -angle_of_rotation, 1)
+
+        # Perform the rotation
+        rotated_image = cv2.warpAffine(self.image, rotation_matrix, (width, height))
+        return rotated_image
+
+    def detect_text_rotation(self):
+        # Load the image
+
+        text = pytesseract.image_to_osd(self.image)
+
+        # Extract the rotation angle from the OCR result
+        rotation_angle = 0
+        print(text)
+        for line in text.split('\n'):
+            if 'Rotate: ' in line:
+                rotation_angle = float(line.split(': ')[-1])
+                break
+
+        return rotation_angle
+
     def extract_text_to_string(self):
-        return pytesseract.image_to_string(self.image)
+
+        extracted_strings = pytesseract.image_to_string(self.image)
+        return extracted_strings
 
     def bulk_extraction(self, filepath_containing_filenames):
         return pytesseract.image_to_string(filepath_containing_filenames)

@@ -15,6 +15,7 @@ class PreProcess:
             return cv2.imread(self.filepath)
         return None
 
+    # rotate image
     def resize_by_half(self, image):
         return cv2.resize(image, (0, 0), fx=0.5, fy=0.5)
 
