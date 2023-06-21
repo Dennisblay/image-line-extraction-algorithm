@@ -15,6 +15,9 @@ class PreProcess:
             return cv2.imread(self.filepath)
         return None
 
+    def resize_by_half(self, image):
+        return cv2.resize(image, (0, 0), fx=0.5, fy=0.5)
+
     # get grayscale image
     def get_grayscale(self, image):
         return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -49,24 +52,6 @@ class PreProcess:
     def canny(self, image):
         return cv2.Canny(image, 100, 200)
 
-    # skew correction
-    def deskew(self, image):
-        coords = np.column_stack(np.where(image > 0))
-        angle = cv2.minAreaRect(coords)[-1]
-        if angle < -45:
-            angle = -(90 + angle)
-        else:
-            angle = -angle
-            (h, w) = image.shape[:2]
-            center = (w // 2, h // 2)
-            M = cv2.getRotationMatrix2D(center, angle, 1.0)
-            rotated = cv2.warpAffine(image, M, (w, h), flags=cv2.INTER_CUBIC, borderMode=cv2.BORDER_REPLICATE)
-            return rotated
-
-    # template matching
-    def match_template(self, image, template):
-        return cv2.matchTemplate(image, template, cv2.TM_CCOEFF_NORMED)
-
     # save image
     def save_image_to_file(self, image, filename, file_extension=None):
         if file_extension is None:
@@ -74,10 +59,8 @@ class PreProcess:
         cv2.imwrite(filename + file_extension, image)
 
     def show_frame(self, image):
-        cv2.imshow(r"frame", image)
-        if self.waitKey() & 0xff == ord('q'):
-            cv2.destroyAllWindows()
-
+        cv2.imshow("image", image)
+        self.waitKey()
 
     def waitKey(self, delay=0):
         return cv2.waitKey(delay)
